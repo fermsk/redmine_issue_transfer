@@ -1,0 +1,67 @@
+<h2>Transfer Issues from Another Redmine With Version ID</h2>
+
+<%= form_with model: @transfer_config, 
+              url: project_issue_transfer_path(@project || Project.first), 
+              local: true do |f| %>
+  
+  <% if @transfer_config.errors.any? %>
+    <div id="error_explanation">
+      <h3><%= pluralize(@transfer_config.errors.count, "error") %> prohibited this transfer: </h3>
+      <ul>
+        <% @transfer_config.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="box tabular">
+    <h3>Source Redmine Configuration</h3>
+    
+    <p>
+      <%= f.label :source_url, "Source Redmine URL" %>
+      <%= f.text_field :source_url, size: 60 %>
+      <em>Example: https://source-redmine.example.com</em>
+    </p>
+    
+    <p>
+      <%= f.label :source_api_key, "Source API Key" %>
+      <%= f.text_field :source_api_key, size: 60 %>
+    </p>
+    
+    <p>
+      <%= f.label :source_version_id, "Source Version ID" %>
+      <%= f.number_field :source_version_id %>
+    </p>
+  </div>
+
+  <div class="box tabular">
+    <h3>Target Configuration</h3>
+    
+    <p>
+      <%= f.label :target_project_id, "Target Project" %>
+      <%= f.select :target_project_id, 
+                   options_from_collection_for_select(Project.all, :id, :name, @project&.id) %>
+    </p>
+    
+    <p>
+      <%= f.label :target_version_id, "Target Version ID" %>
+      <%= f.number_field :target_version_id %>
+    </p>
+    
+    <p>
+      <%= f.label :fallback_assignee_id, "Select user to assign all transferred issues" %>
+      <%= f.select :fallback_assignee_id, 
+                   options_from_collection_for_select(User.active.sorted, :id, :name), 
+                   { include_blank: false }, 
+                   { class: 'select2' } %>
+      <em>Select user to assign issues when original assignee cannot be found</em>
+    </p>
+  </div>
+
+  <p>
+    <%= f.submit "Transfer Issues", 
+                 data: { confirm: "Are you sure you want to transfer all issues from the source version?" }, 
+                 class: "button" %>
+  </p>
+<% end %>
